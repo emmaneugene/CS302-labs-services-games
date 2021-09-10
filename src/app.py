@@ -4,7 +4,8 @@ from flask_sqlalchemy import SQLAlchemy
 from flask_cors import CORS
 
 app = Flask(__name__)
-app.config['SQLALCHEMY_DATABASE_URI'] = os.environ.get('db_conn') + '/game' # 'mysql+mysqlconnector://cs302:cs302@localhost:3306/game'
+app.config['SQLALCHEMY_DATABASE_URI'] = os.environ.get('db_conn') + '/game'
+# 'mysql+mysqlconnector://cs302:cs302@localhost:3306/game'
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 app.config['SQLALCHEMY_ENGINE_OPTIONS'] = {'pool_size': 100,
                                            'pool_recycle': 280}
@@ -12,6 +13,7 @@ app.config['SQLALCHEMY_ENGINE_OPTIONS'] = {'pool_size': 100,
 db = SQLAlchemy(app)
 
 CORS(app)
+
 
 class Game(db.Model):
     __tablename__ = 'game'
@@ -37,13 +39,15 @@ class Game(db.Model):
             'stock': self.stock
         }
 
+
 @app.route('/health')
 def health_check():
     return jsonify(
-            {
-                'message': 'Service is healthy.'
-            }
+        {
+            'message': 'Service is healthy.'
+        }
     ), 200
+
 
 @app.route('/games')
 def get_all():
@@ -62,6 +66,7 @@ def get_all():
         }
     ), 404
 
+
 @app.route('/games/<int:game_id>')
 def find_by_id(game_id):
     game = Game.query.filter_by(game_id=game_id).first()
@@ -76,6 +81,7 @@ def find_by_id(game_id):
             'message': 'Game not found.'
         }
     ), 404
+
 
 @app.route('/games', methods=['POST'])
 def new_game():
@@ -98,17 +104,18 @@ def new_game():
         }
     ), 201
 
+
 @app.route('/games/<int:game_id>', methods=['PUT'])
 def update_game(game_id):
     game = Game.query.filter_by(game_id=game_id).first()
 
     if not game:
         return jsonify(
-            { 
+            {
                 'data': {
                     'game_id': game_id
                 },
-                'message': 'Game not found' 
+                'message': 'Game not found'
             }
         ), 404
 
@@ -134,17 +141,18 @@ def update_game(game_id):
         }
     ), 200
 
+
 @app.route('/games/<int:game_id>', methods=['DELETE'])
 def delete_game(game_id):
     game = Game.query.filter_by(game_id=game_id).first()
 
     if not game:
         return jsonify(
-            { 
+            {
                 'data': {
                     'game_id': game_id
                 },
-                'message': 'Game not found' 
+                'message': 'Game not found'
             }
         ), 404
 
@@ -161,9 +169,10 @@ def delete_game(game_id):
 
     return jsonify(
         {
-            'data': { 'game_id': game_id }
+            'data': {'game_id': game_id}
         }
     ), 200
+
 
 @app.route('/games/<int:game_id>', methods=['PATCH'])
 def reserve_game_qty(game_id):
@@ -171,15 +180,14 @@ def reserve_game_qty(game_id):
 
     if not game:
         return jsonify(
-            { 
+            {
                 'data': {
                     'game_id': game_id
                 },
-                'message': 'Game not found' 
+                'message': 'Game not found'
             }
         ), 404
 
-    
     data = request.get_json()
     if game.stock >= data['reserve']:
         game.stock -= data['reserve']
