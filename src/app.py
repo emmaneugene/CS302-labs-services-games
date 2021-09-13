@@ -179,37 +179,74 @@ def delete_game(game_id):
 
 
 @app.route('/games/<int:game_id>', methods=['PATCH'])
-def reserve_game_qty(game_id):
-    game = Game.query.filter_by(game_id=game_id).first()
-
-    if not game:
+def update_game(game_id):
+    game = Game.query.with_for_update(of=Game)\
+               .filter_by(game_id=game_id).first()
+    if game is None:
         return jsonify(
             {
-                'data': {
-                    'game_id': game_id
+                "data": {
+                    "game_id": game_id
                 },
-                'message': 'Game not found'
+                "message": "Game not found."
             }
         ), 404
-
     data = request.get_json()
-    if game.stock >= data['reserve']:
-        game.stock -= data['reserve']
-        db.session.add(game)
-        db.session.commit()
+    if 'reserve' in data.keys():
+        if len(data.keys()) != 1:
+            return jsonify(
+                {
+                    "message": "An error occurred updating the game.",
+                    "error": "The 'reserve' key " +
+                             "cannot be provided with any others."
+                }
+            ), 500
+        if game.stock - data['reserve'] >= 0:
+            game.stock = game.stock - data['reserve']
+            try:
+                db.session.commit()
+            except Exception as e:
+                return jsonify(
+                    {
+                        "message": "An error occurred updating the game.",
+                        "error": str(e)
+                    }
+                ), 500
+            return jsonify(
+                {
+                    "data": game.to_dict()
+                }
+            ), 200
+        else:
+            return jsonify(
+                {
+                    "message": "An error occurred updating the game.",
+                    "error": "Not enough games in stock."
+                }
+            ), 500
     else:
+        if 'platform' in data.keys():
+            game.platform = data['platform']
+        if 'price' in data.keys():
+            game.price = data['price']
+        if 'stock' in data.keys():
+            game.stock = data['stock']
+        if 'title' in data.keys():
+            game.title = data['title']
+        try:
+            db.session.commit()
+        except Exception as e:
+            return jsonify(
+                {
+                    "message": "An error occurred updating the game.",
+                    "error": str(e)
+                }
+            ), 500
         return jsonify(
             {
-                'message': 'An error occurred updating the game.',
-                'error': 'Not enough games in stock.'
+                "data": game.to_dict()
             }
-        ), 500
-
-    return jsonify(
-        {
-            'data': game.to_dict()
-        }
-    ), 200
+        )
 
 
 if __name__ == '__main__':
