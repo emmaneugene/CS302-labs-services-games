@@ -110,7 +110,7 @@ def new_game():
 
 
 @app.route('/games/<int:game_id>', methods=['PUT'])
-def update_game(game_id):
+def replace_game(game_id):
     game = Game.query.filter_by(game_id=game_id).first()
 
     if not game:
