@@ -4,8 +4,12 @@ from flask_sqlalchemy import SQLAlchemy
 from flask_cors import CORS
 
 app = Flask(__name__)
-app.config['SQLALCHEMY_DATABASE_URI'] = os.environ.get('db_conn') + '/game'
-# 'mysql+mysqlconnector://cs302:cs302@localhost:3306/game'
+
+if os.environ.get('db_conn'):
+    app.config['SQLALCHEMY_DATABASE_URI'] = os.environ.get('db_conn') + '/game'
+    # 'mysql+mysqlconnector://cs302:cs302@localhost:3306/game'
+else:
+    app.config['SQLALCHEMY_DATABASE_URI'] = None
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 app.config['SQLALCHEMY_ENGINE_OPTIONS'] = {'pool_size': 100,
                                            'pool_recycle': 280}
