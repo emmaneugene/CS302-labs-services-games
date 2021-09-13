@@ -15,6 +15,7 @@
 
 stages:
   - Static Analysis
+  - Test
 
 flake8:
   stage: Static Analysis
@@ -42,3 +43,14 @@ pylint:
     when: always
     paths:
       - pylint_report.txt
+
+integration-tests:
+  stage: Test
+  image: docker/compose:latest
+  services:
+    - docker:dind
+  before_script:
+    - docker info
+    - docker-compose --version
+  script:
+    - docker-compose -f ci/docker-compose.test.yml up --exit-code-from games-pytest
