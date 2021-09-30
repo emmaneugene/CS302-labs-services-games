@@ -49,7 +49,7 @@ class Game(db.Model):
 def health_check():
     return jsonify(
         {
-            'message': 'Service is healthy!',
+            'message': 'Games service is healthy!',
             'time': str(datetime.datetime.now())
         }
     ), 200
