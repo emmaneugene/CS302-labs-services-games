@@ -1,5 +1,6 @@
 import datetime
 import os
+import socket
 from flask import Flask, request, jsonify
 from flask_sqlalchemy import SQLAlchemy
 from flask_cors import CORS
@@ -47,10 +48,14 @@ class Game(db.Model):
 
 @app.route('/health')
 def health_check():
+    hostname = socket.gethostname()
+    local_ip = socket.gethostbyname(hostname)
+
     return jsonify(
         {
             'message': 'Games service is healthy!',
-            'time': str(datetime.datetime.now())
+            'time': str(datetime.datetime.now()),
+            'ip_address': local_ip
         }
     ), 200
 
