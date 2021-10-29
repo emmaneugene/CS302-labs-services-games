@@ -4,6 +4,7 @@ import socket
 from flask import Flask, request, jsonify
 from flask_sqlalchemy import SQLAlchemy
 from flask_cors import CORS
+from prometheus_flask_exporter import PrometheusMetrics
 
 app = Flask(__name__)
 
@@ -16,6 +17,7 @@ app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 app.config['SQLALCHEMY_ENGINE_OPTIONS'] = {'pool_size': 100,
                                            'pool_recycle': 280}
 
+metrics = PrometheusMetrics(app)
 db = SQLAlchemy(app)
 
 CORS(app)
@@ -45,7 +47,7 @@ class Game(db.Model):
             'stock': self.stock
         }
 
-
+@metrics.do_not_track()
 @app.route('/health')
 def health_check():
     hostname = socket.gethostname()
@@ -257,4 +259,4 @@ def update_game(game_id):
 
 
 if __name__ == '__main__':
-    app.run(host='0.0.0.0', port=5000, debug=True)
+    app.run(host='0.0.0.0', port=5000, debug=False)
