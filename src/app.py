@@ -47,6 +47,7 @@ class Game(db.Model):
             'stock': self.stock
         }
 
+
 @metrics.do_not_track()
 @app.route('/health')
 def health_check():
